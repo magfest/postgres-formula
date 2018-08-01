@@ -226,7 +226,7 @@ postgresql-running:
   service.running:
     - name: {{ postgres.service }}
     - enable: True
-   {% if grains.os not in ('MacOS',) %}
+   {% if grains.os not in ('MacOS',) and not postgres.restart_service_on_changes %}
     - reload: True
    {% endif %}
     - watch:

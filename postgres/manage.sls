@@ -1,7 +1,9 @@
 {%- from tpldir + "/map.jinja" import postgres with context -%}
 {%- from tpldir + "/macros.jinja" import format_state with context -%}
 
-{%- if salt['postgres.user_create']|default(none) is not callable %}
+{%- set needs_client_binaries = salt['postgres.user_create']|default(none) is not callable -%}
+
+{%- if needs_client_binaries %}
 
 # Salt states for managing PostgreSQL is not available,
 # need to provision client binaries first
@@ -18,7 +20,11 @@ include:
 # Ensure that Salt is able to use postgres modules
 
 postgres-reload-modules:
+{%- if needs_client_binaries or postgres.manage_force_reload_modules %}
   test.succeed_with_changes:
+{%- else %}
+  test.succeed_without_changes:
+{%- endif %}
     - reload_modules: True
 
 # User states
@@ -54,7 +60,7 @@ postgres-reload-modules:
       {%- if 'schema' in extension %}
       - postgres_schema: postgres_schema-{{ extension.schema }}
       {%- endif %}
-    
+
     {%- endfor %}
   {%- endif %}
   {%- if 'schemas' in db %}
@@ -64,7 +70,7 @@ postgres-reload-modules:
 {{ format_state( name + '-' + schema_name, 'postgres_schema', schema) }}
     - require:
       - postgres_database: postgres_database-{{ name }}
-    
+
     {%- endfor %}
   {%- endif %}
 
