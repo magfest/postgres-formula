@@ -279,10 +279,14 @@ postgresql-running:
   service.running:
     - name: {{ postgres.service.name }}
     - enable: True
+    
+    - watch:
+      - file: postgresql-pg_hba
+      - file: postgresql-pg_ident
 
-# Reload the service for changes made to `pg_ident.conf`, except for `MacOS`
-# which is handled by `postgresql-running` above.
-{%- if grains.os not in ('MacOS',) %}
+# Reload the service for changes made to `pg_ident.conf` if restart_service_on_changes is True,
+# except for `MacOS` which is handled by `postgresql-running` above.
+{%- if grains.os not in ('MacOS',) and not postgres.restart_service_on_changes %}
 postgresql-service-reload:
   module.wait:
     - name: service.reload
