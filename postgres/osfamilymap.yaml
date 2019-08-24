@@ -21,12 +21,33 @@ Debian:
     {% endif %}
 
 FreeBSD:
-  user: pgsql
+    {% if repo.version|float >= 9.6 %}
+  user: &freebsd-user postgres
+  group: &freebsd-group postgres
+  conf_dir: {{ '/var/db/postgres/data' ~ release  }}
+  data_dir: {{ '/var/db/postgres/data' ~ release }}
+    {% else %}
+  user: &freebsd-user pgsql
+  group: &freebsd-group pgsql
+  conf_dir: /usr/local/pgsql/data
+  data_dir: /usr/local/pgsql/data
+    {% endif %}
+  pkg_client: postgresql{{ release }}-client
+  pkg: postgresql{{ release }}-server
+  prepare_cluster:
+    user: *freebsd-user
+    group: *freebsd-group
+  service:
+    flags: -w -s -m fast
+    sysrc: True
 
 OpenBSD:
   conf_dir: /var/postgresql/data
   data_dir: /var/postgresql/data
   user: _postgresql
+  service:
+    flags: -w -s -m fast
+    sysrc: True
 
 RedHat:
   pkg_repo:
@@ -46,7 +67,8 @@ RedHat:
   pkg_dev: postgresql{{ release }}-devel
   conf_dir: {{ data_dir }}
   data_dir: {{ data_dir }}
-  service: postgresql-{{ repo.version }}
+  service:
+    name: postgresql-{{ repo.version }}
 
   # Alternatives system
   linux:
@@ -124,7 +146,8 @@ Suse:
   pkg_libs: postgresql{{ release }}-libs
   conf_dir: {{ data_dir }}
   data_dir: {{ data_dir }}
-  service: postgresql-{{ repo.version }}
+  service:
+    name: postgresql-{{ repo.version }}
 
   # Alternatives system
   linux:
@@ -167,9 +190,11 @@ Suse:
 ## jinja check avoids rendering noise/failure on Linux
 MacOS:
    {%- if repo.use_upstream_repo == 'homebrew' %}
-  service: homebrew.mxcl.postgresql
+  service:
+    name: homebrew.mxcl.postgresql
    {%- elif repo.use_upstream_repo == 'postgresapp' %}
-  service: com.postgresapp.Postgres2
+  service:
+    name: com.postgresapp.Postgres2
    {%- endif %}
   pkg: postgresql
   pkg_client:

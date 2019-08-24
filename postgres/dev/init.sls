@@ -1,4 +1,4 @@
-{% from tpldir + "/map.jinja" import postgres with context %}
+{%- from salt.file.dirname(tpldir) ~ "/map.jinja" import postgres with context -%}
 
 {% if grains.os not in ('Windows', 'MacOS',) %}
   {%- set pkgs = [postgres.pkg_dev, postgres.pkg_libpq_dev] + postgres.pkg_dev_deps %}
@@ -23,11 +23,12 @@ postgresql-{{ bin }}-altinstall:
     - link: {{ salt['file.join']('/usr/bin', bin) }}
     - path: {{ path }}
     - priority: {{ postgres.linux.altpriority }}
-      {% if grains.os in ('Fedora', 'CentOS',) %} {# bypass bug #}
-    - onlyif: alternatives --display {{ bin }}
-      {% else %}
     - onlyif: test -f {{ path }}
-      {% endif %}
+      {%- if grains['saltversioninfo'] < [2018, 11, 0, 0] %}
+    - retry:
+        attempts: 2
+        until: True
+      {%- endif %}
 
     {%- endfor %}
   {%- endif %}
@@ -40,7 +41,7 @@ postgresql-{{ bin }}-altinstall:
 postgres_maxfiles_limits_conf:
   file.managed:
     - name: /Library/LaunchDaemons/limit.maxfiles.plist
-    - source: salt://{{ tpldir }}/templates/limit.maxfiles.plist
+    - source: salt://postgres/templates/limit.maxfiles.plist
     - template: jinja
     - context:
       soft_limit: {{ postgres.limits.soft }}
@@ -59,7 +60,7 @@ postgres-desktop-shortcut-clean:
 postgres-desktop-shortcut-add:
   file.managed:
     - name: /tmp/mac_shortcut.sh
-    - source: salt://{{ tpldir }}/templates/mac_shortcut.sh
+    - source: salt://postgres/templates/mac_shortcut.sh
     - mode: 755
     - template: jinja
     - context:

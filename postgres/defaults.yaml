@@ -2,6 +2,7 @@
 
 postgres:
   use_upstream_repo: True
+  add_profile: False # add bin_dir to $PATH, if installed from repos
   version: '10'
   pkg: postgresql
   pkgs_extra: []
@@ -16,6 +17,7 @@ postgres:
   group: postgres
 
   prepare_cluster:
+    run: True
     pgcommand: initdb -D
     pgtestfile: PG_VERSION
     user: postgres
@@ -65,7 +67,9 @@ postgres:
 
   config_backup: '.bak'
 
-  service: postgresql
+  service:
+    name:  postgresql
+    sysrc: False
 
   bake_image: False
 
