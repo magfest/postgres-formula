@@ -213,7 +213,7 @@ postgresql-pg_ident:
       - file: postgresql-cluster-prepared
       {%- endif %}
     - watch_in:
-      {%- if grains.os not in ('MacOS',) and not postgres.restart_service_on_changes %}
+      {%- if grains.os not in ('MacOS',) %}
       - module: postgresql-service-reload
       {%- else %}
       - service: postgresql-running
@@ -284,7 +284,7 @@ postgresql-running:
       - file: postgresql-pg_hba
       - file: postgresql-pg_ident
 
-# Reload the service for changes made to `pg_ident.conf` if restart_service_on_changes is False,
+# Reload the service for changes made to `pg_ident.conf` if restart_service_on_changes is True,
 # except for `MacOS` which is handled by `postgresql-running` above.
 {%- if grains.os not in ('MacOS',) and not postgres.restart_service_on_changes %}
 postgresql-service-reload:
