@@ -24,11 +24,11 @@ postgresql-start:
 postgresql-enable:
   cmd.run:
   {%- if salt['file.file_exists']('/bin/systemctl') %}
-    - name: systemctl enable {{ postgres.service.name }}
+    - name: systemctl enable {{ postgres.service }}
   {%- elif salt['cmd.which']('chkconfig') %}
-    - name: chkconfig {{ postgres.service.name }} on
+    - name: chkconfig {{ postgres.service }} on
   {%- elif salt['file.file_exists']('/usr/sbin/update-rc.d') %}
-    - name: update-rc.d {{ postgres.service.name }} defaults
+    - name: update-rc.d {{ service }} defaults
   {%- else %}
     # Nothing to do
     - name: 'true'
