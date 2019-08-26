@@ -1,8 +1,8 @@
-{%- from salt.file.dirname(tpldir) ~ "/map.jinja" import postgres with context -%}
+{%- from "postgres/map.jinja" import postgres with context %}
 
 postgresql-dead:
   service.dead:
-    - name: {{ postgres.service.name }}
+    - name: {{ postgres.service }}
     - enable: False
 
 postgresql-repo-removed:
@@ -81,7 +81,7 @@ postgresql{{ release }}-tablespace-dir-{{ name }}-removed:
   file.absent:
     - name: {{ tblspace.directory }}
     - require:
-      - file: postgresql{{ release }}-dataconf-removed
+      - file: postgresql{{ release }}-dataconf-removed 
       {% endfor %}
     {% endif %}
 

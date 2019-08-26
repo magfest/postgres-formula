@@ -8,9 +8,6 @@ postgres:
   use_upstream_repo: False
   # Version to install from upstream repository (if upstream_repo: True)
   version: '10'
-  # Set True to add a file in /etc/profile.d adding the bin dir in $PATH
-  # as packages from upstream put them somewhere like /usr/pgsql-10/bin
-  add_profile: False
   # If automatic package installation fails, use `fromrepo` to specify the
   # upstream repo to install packages from [#133, #185] (if upstream_repo: True)
   fromrepo: 'jessie-pgdg'
@@ -24,10 +21,7 @@ postgres:
   # These pillars are typically never required.
   # pkg: 'postgresql'
   # pkg_client: 'postgresql-client'
-  # service:
-  #   name: 'postgresql'
-  #   flags: -w -s -m fast
-  #   sysrc: True
+  # service: postgresql
   pkgs_extra:
     - postgresql-contrib
     - postgresql-plpython
@@ -36,7 +30,7 @@ postgres:
   # The default `encoding` is derived from the `locale` so not recommended
   # to provide a value for it unless necessary
   cluster:
-    locale: en_US.UTF-8
+    locale: en_GB.UTF-8
     # encoding: UTF8
 
   #'Alternatives system' priority incremental. 0 disables feature.
@@ -133,6 +127,7 @@ postgres:
       password: '98ruj923h4rf'
       createdb: False
       createroles: False
+      createuser: False
       inherit: True
       replication: False
 
@@ -141,6 +136,7 @@ postgres:
       password: '98ruj923h4rf'
       createdb: False
       createroles: False
+      createuser: False
       inherit: True
       replication: False
 
@@ -177,14 +173,14 @@ postgres:
 
   # optional schemas to enable on database
   schemas:
-    uuid-ossp:
+    uuid_ossp:
       dbname: db1
       owner: localUser
 
   # optional extensions to install in schema
   extensions:
     uuid-ossp:
-      schema: uuid-ossp
+      schema: uuid_ossp
       maintenance_db: db1
     #postgis: {}
 
