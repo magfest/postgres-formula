@@ -213,7 +213,7 @@ postgresql-pg_ident:
       - file: postgresql-cluster-prepared
       {%- endif %}
     - watch_in:
-      {%- if grains.os not in ('MacOS',) %}
+      {%- if grains.os not in ('MacOS',) and not postgres.restart_service_on_changes %}
       - module: postgresql-service-reload
       {%- else %}
       - service: postgresql-running
